@@ -835,6 +835,7 @@ prompt_pure_setup() {
 		user                 242
 		user:root            default
 		virtualenv           242
+		kubectl_context			 242
 	)
 	prompt_pure_colors=("${(@kv)prompt_pure_colors_default}")
 
@@ -853,6 +854,13 @@ prompt_pure_setup() {
 
 	# If a virtualenv is activated, display it in grey.
 	PROMPT='%(12V.%F{$prompt_pure_colors[virtualenv]}%12v%f .)'
+
+	# Display kubectl context if set.
+	if zstyle -t ":prompt:pure:environment:kube" show; then
+		if [[ -n ${KUBECONFIG:-$HOME/.kube/config} && $(command -v kubectl) ]]; then
+			PROMPT+='%F{$prompt_pure_colors[kubectl_context]}($(kubectl config current-context 2>/dev/null | tr -d "\n"))%f '
+		fi
+	fi
 
 	# Prompt turns red if the previous command didn't exit with 0.
 	local prompt_indicator='%(?.%F{$prompt_pure_colors[prompt:success]}.%F{$prompt_pure_colors[prompt:error]})${prompt_pure_state[prompt]}%f '
